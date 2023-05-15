@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  joyas:
+    build: 
+      context: ./joyas
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:3001
+    depends_on:
+      - serverjoyas
+
+  serverjoyas:
+    build:
+      context: ./serverjoyas
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: joyas-db
+      DB_PASSWORD: postgres
+      DB_PORT: 5432
+      DB_NAME: joyas
+      DB_USER: postgres
+    ports:
+      - "3001:3001"
+    depends_on:
+      - joyas-db
+
+  1:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: joyas
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
