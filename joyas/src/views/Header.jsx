@@ -1,12 +1,12 @@
 import { Container } from "react-bootstrap";
-import { FcCamera } from "react-icons/fc";
+import { RiShoppingBagFill } from "react-icons/ri";
 
 //Vista de datos del home
 const Header = () => {
     return (
         <Container className="text-center">
             <div className="jumbotron">
-                <h1 className="display-4 font-weight-bold"><FcCamera/>Joyas<FcCamera /></h1>
+                <h1 className="display-4 font-weight-bold"><RiShoppingBagFill/>Joyas<RiShoppingBagFill /></h1>
             </div>
         </Container>
     );
