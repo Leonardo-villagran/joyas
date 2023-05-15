@@ -27,7 +27,7 @@ services:
     depends_on:
       - joyas-db
 
-  1:
+  joyas-db:
     image: postgres
     restart: always
     environment:
