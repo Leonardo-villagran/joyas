@@ -36,7 +36,7 @@ function Formulario() {
             });
 
             const data = await response.json();
-            console.log(data);
+            console.log("Soy data en formulario: ",data);
 
             setTitulo('');
             setImg('');

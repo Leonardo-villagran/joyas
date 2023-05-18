@@ -1,7 +1,6 @@
 /joyas/node_modules
 /joyas/package-lock.json
-/joyas/.env
+
 
 /serverjoyas/node_modules
 /serverjoyas/package-lock.json
-/serverjoyas/.env

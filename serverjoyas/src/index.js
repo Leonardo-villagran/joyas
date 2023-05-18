@@ -40,7 +40,7 @@ app.get('/joyas',  reportMiddleware, async (req, res) => {
         const limit = req.query.limits || 10; // Valor por defecto 10
         const page = req.query.page || 1; // Valor por defecto 1
         let order_by = req.query.order_by || 'id'; // Valor por defecto 'id'
-        const allowed_columns = ['id', 'stock', 'categoria', 'metal', 'nombre']; // Las columnas permitidas
+        const allowed_columns = ['id', 'stock', 'categoria', 'metal', 'nombre', 'precio']; // Las columnas permitidas
         const order_by_parts = order_by.split('_'); // Separamos la columna del orden
         let order_column = order_by_parts[0];
         //console.log(` ${order_column}`);
