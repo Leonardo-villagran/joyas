@@ -8,7 +8,6 @@ const cors = require('cors');
 const app = express();
 //generar constante que determina el puerto a usar
 const PORT = process.env.PORT || 3001;
-const HOST = app.get('host') || 'localhost';
 
 app.use(cors());
 
@@ -21,48 +20,63 @@ const pool = new Pool({
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT
+    port: process.env.DB_PORT,
+    allowExitOnIdle: true
 });
 
 
 const reportMiddleware = (req, res, next) => {
     console.log(`---------------------`);
     console.log(`SOLICITUD DESDE LA WEB`);
-    console.log('Url original:',JSON.stringify(req.originalUrl));
+    console.log('Url original:', req.hostname, (req.originalUrl));
     console.log(`Solicitud recibida: ${req.method} ${req.path}`);
-    console.log('req.query: ', JSON.stringify(req.query));
+    console.log('req.query: ', JSON.stringify(req.query, null, 2));
     console.log(`---------------------`);
     next();
 };
 
 // Ruta para obtener todos los posts
-app.get('/joyas',  reportMiddleware, async (req, res) => {
+app.get('/joyas', reportMiddleware, async (req, res) => {
     try {
-        const limit = req.query.limits || 10; // Valor por defecto 10
-        const page = req.query.page || 1; // Valor por defecto 1
+        let limit = req.query.limits || 10; // Valor por defecto 10
+
+        // Verificar si el valor es vacío, cero o menor que cero
+        if (isNaN(limit) || limit <= 0) {
+            limit = 0; // Asignar el valor por defecto
+        }
+
+        let page = req.query.page || 1; // Valor por defecto 1
+        // Verificar si el valor es vacío, cero o menor que cero
+        if (isNaN(page) || page <= 0) {
+            page = 1; // Asignar el valor por defecto
+        }
+
+
         let order_by = req.query.order_by || 'id'; // Valor por defecto 'id'
         const allowed_columns = ['id', 'stock', 'categoria', 'metal', 'nombre', 'precio']; // Las columnas permitidas
         const order_by_parts = order_by.split('_'); // Separamos la columna del orden
         let order_column = order_by_parts[0];
         //console.log(` ${order_column}`);
         let order_direction = order_by_parts[1];
-        
+
         if (typeof order_direction === "undefined") {
             order_direction = 'DESC';
-        } 
-        
+        }
+
         if (!allowed_columns.includes(order_column)) { // Si la columna no es permitida, usamos la columna por defecto
             //console.log(`order_direction está indefinida`);
-            let order=1;
-            console.log(`Tipo orden: ${order_direction}`);
+            let order = 1;
+            //console.log(`Tipo orden: ${order_direction}`);
         } else {
             order_by = `${order_column} ${order_direction}`;
-            console.log(`Tipo orden: ${order_direction}`);
+            //console.log(`Tipo orden: ${order_direction}`);
         }
         const offset = (page - 1) * limit;
-        
+
         const client = await pool.connect();
-        const result = await client.query(`SELECT * FROM inventario ORDER BY ${order_by} LIMIT ${limit} OFFSET ${offset}`);
+        let query = `SELECT * FROM inventario ORDER BY ${order_by} LIMIT $1 OFFSET $2`;
+
+        const result = await client.query(query, [limit, offset]);
         const joyas = result.rows;
         res.json(joyas);
         client.release();
@@ -73,45 +87,42 @@ app.get('/joyas',  reportMiddleware, async (req, res) => {
 });
 
 
-app.get('/joyas/filtros',  reportMiddleware, async (req, res) => {
+app.get('/joyas/filtros', reportMiddleware, async (req, res) => {
     try {
         const client = await pool.connect();
-        let query = 'SELECT * FROM inventario';
-        const { precio_max, precio_min, categoria, metal } = req.query;
+        let query = 'SELECT * FROM inventario where 1=1';
+        //Objeto que se utiliza para almacenar los valores ordenados para la consulta parametrizada.
+        let values = [];
+        const { precio_max, precio_min, categoria, metal} = req.query;
 
-        if (precio_max) {
-            if (query.includes('WHERE')) {
-                query += ` AND precio <= ${precio_max}`;
-            } else {
-                query += ` WHERE precio <= ${precio_max}`;
-            }
+        const precio_maxTrim=precio_max.trim();
+        const precio_minTrim=precio_min.trim();
+        const categoriaLower= categoria.toLowerCase().trim();
+        const metalLower = metal.toLowerCase().trim();
+
+        if (precio_maxTrim) {
+            query += ` AND precio <= $${values.length + 1}`;
+            values.push(precio_maxTrim);
         }
 
-        if (precio_min) {
-            if (query.includes('WHERE')) {
-                query += ` AND precio >= ${precio_min}`;
-            } else {
-                query += ` WHERE precio >= ${precio_min}`;
-            }
+        if (precio_minTrim) {
+            query += ` AND precio >= $${values.length + 1}`;
+            values.push(precio_minTrim);
         }
 
-        if (categoria) {
-            if (query.includes('WHERE')) {
-                query += ` AND categoria = '${categoria}'`;
-            } else {
-                query += ` WHERE categoria = '${categoria}'`;
-            }
+        if (categoriaLower) {
+            query += ` AND categoria LIKE '%' || $${values.length + 1} || '%'`;
+            values.push(categoriaLower);
         }
 
-        if (metal) {
-            if (query.includes('WHERE')) {
-                query += ` AND metal = '${metal}'`;
-            } else {
-                query += ` WHERE metal = '${metal}'`;
-            }
+        if (metalLower) {
+            query += ` AND metal LIKE '%' || $${values.length + 1} || '%'`;
+            values.push(metalLower);
         }
 
-        const result = await client.query(query);
+        console.log(query);
+        console.log(values);
+        const result = await client.query(query, values);
         const joyas = result.rows;
         res.json(joyas);
         client.release();
@@ -173,5 +184,5 @@ app.delete('/joyas/:id', async (req, res) => {
 
 // Inicia el servidor
 app.listen(PORT, () => {
-    console.log(`Servidor de Express en el host ${HOST} escuchando en el puerto ${PORT}`);
+    console.log(`Servidor de Express escuchando en el puerto ${PORT}`);
 });

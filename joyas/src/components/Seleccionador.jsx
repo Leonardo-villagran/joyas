@@ -31,7 +31,8 @@ function JoyasForm() {
 
     // Este efecto se ejecuta cada vez que los valores de los hooks cambian
     React.useEffect(() => {
-        const url = `http://127.0.0.1:3001/joyas?order_by=${orderBy}&limits=${limits}&page=${page}`;
+        const urlbase = process.env.REACT_APP_API_URL || "http://127.0.0.1:3001/joyas";
+        const url = `${urlbase}?order_by=${orderBy}&limits=${limits}&page=${page}`;
         console.log("soy la url en el seleccionador:", url);
         setUrlSelect(url);
         // Aquí puedes hacer algo con la URL, como actualizar la barra de direcciones del navegador utilizando "window.history.pushState()"

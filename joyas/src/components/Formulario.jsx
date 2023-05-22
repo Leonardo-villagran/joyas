@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Card } from 'react-bootstrap';
+import Context from '../Context/Context';
 
 function Formulario() {
     const [titulo, setTitulo] = useState('');
@@ -7,10 +8,9 @@ function Formulario() {
     const [descripcion, setDescripcion] = useState('');
     const [likes, setLikes] = useState(0);
 
-    
+    const {urlSelect} = useContext(Context);
     //const url = process.env.REACT_APP_API_URL;
-    
-    const url = process.env.REACT_APP_API_URL || "http://localhost:3001";
+ 
 
     const handleTituloChange = (event) => {
         setTitulo(event.target.value);
@@ -27,7 +27,7 @@ function Formulario() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await fetch(`${url}/joyas`, {
+            const response = await fetch(`${urlSelect}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
