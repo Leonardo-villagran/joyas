@@ -1,10 +1,10 @@
-import Formulario from "../components/Formulario";
+import Edit from "../components/Edit";
 
 //Vista de datos del home
 const FormView = () => {
     return (
         <div>   
-            <Formulario />
+            <Edit />
         </div>
     );
 };

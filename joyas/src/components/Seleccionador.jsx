@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import Context from '../Context/Context';
 
 function JoyasForm() {
-    const [orderBy, setOrderBy] = useState('stock_desc');
+    const [orderBy, setOrderBy] = useState('');
     const [limits, setLimits] = useState(4);
     const [page, setPage] = useState(1);
 
@@ -12,8 +12,8 @@ function JoyasForm() {
     // Cargar los valores iniciales de los hooks desde la URL al cargar el componente
     React.useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
-        setOrderBy(urlParams.get('order_by') || 'stock_desc');
-        setLimits(parseInt(urlParams.get('limits')) || 6);
+        setOrderBy(urlParams.get('order_by') || '');
+        setLimits(parseInt(urlParams.get('limits')) || 10);
         setPage(parseInt(urlParams.get('page')) || 1);
     }, []);
 
@@ -39,11 +39,12 @@ function JoyasForm() {
     }, [orderBy, limits, page,urlSelect,setUrlSelect]);
 
     return (
-        <div className='py-3 d-flex justify-content-center' >
+        <div className='py-2 d-flex justify-content-center' >
         <form className="d-flex">
             <div className="form-group me-3">
                 <label htmlFor="orderBy" className="me-2">Ordenar por:</label>
-                <select id="orderBy" name="orderBy" value={orderBy} onChange={handleOrderByChange}>
+                <select id="orderBy" name="orderBy" value={orderBy} onChange={handleOrderByChange}> 
+                <option value="" disabled>Seleccionar orden</option>
                     <option value="stock_desc">Stock descendente</option>
                     <option value="stock_asc">Stock ascendente</option>
                     <option value="nombre_asc">Nombre ascendente</option>

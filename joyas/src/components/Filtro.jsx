@@ -8,7 +8,7 @@ function FiltroForm() {
     const [metal, setMetal] = useState('');
 
     //Desestructuración global de datos.
-    const { urlSelect, setUrlSelect } = useContext(Context);
+    const {urlSelect,setUrlSelect} = useContext(Context);
 
     // Cargar los valores iniciales de los hooks desde la URL al cargar el componente
     React.useEffect(() => {
@@ -34,15 +34,15 @@ function FiltroForm() {
 
     // Este efecto se ejecuta cada vez que los valores de los hooks cambian
     React.useEffect(() => {
-        const urlbase = process.env.REACT_APP_API_URL || "http://127.0.0.1:3001/joyas/filtros";
+        const urlbase = process.env.REACT_APP_API_FILTROS || "http://127.0.0.1:3001/joyas/filtros";
         const url = `${urlbase}?precio_min=${precio_min}&precio_max=${precio_max}&categoria=${categoria}&metal=${metal}`;
         console.log("soy la url en el seleccionador:", url);
         setUrlSelect(url);
         // Aquí puedes hacer algo con la URL, como actualizar la barra de direcciones del navegador utilizando "window.history.pushState()"
-    }, [precio_min,precio_max,categoria,metal, urlSelect, setUrlSelect]);
+    }, [precio_min,precio_max,categoria,metal,urlSelect,setUrlSelect]);
 
     return (
-        <div className='py-3 d-flex justify-content-center' >
+        <div className='py-2 d-flex justify-content-center' >
         <form className="d-flex">
             <div className="form-group me-3">
                 <label htmlFor="precio_min" className="me-2">Precio mínimo:</label>

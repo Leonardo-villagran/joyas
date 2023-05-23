@@ -1,87 +1,80 @@
-import React, { useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from 'react-bootstrap';
-import Context from '../Context/Context';
+import { useParams, useNavigate } from 'react-router-dom';
 
-function Formulario() {
+function Edit() {
 
-    const [nombre, setNombre] = useState('');
-    const [categoria, setCategoria] = useState('');
-    const [metal, setMetal] = useState('');
-    const [precio, setPrecio] = useState(0);
-    const [stock, setStock] = useState(0);
-    const [img, setImg] = useState('');
+    const navigate = useNavigate();
 
-    const { datos, setDatos } = useContext(Context);
+    const { id } = useParams();
+    const urlbase = `http://127.0.0.1:3001/joyas/edit/${id}`;
+
+    const [dato, setDato] = useState({
+        id: id,
+        nombre: '',
+        categoria: '',
+        precio: '',
+        stock: '',
+        img: '',
+        metal: '',
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(urlbase);
+                const data = await response.json();
+                setDato(data);
+            } catch (error) {
+                console.error('Error fetching joya data:', error);
+            }
+        };
+
+        fetchData();
+    }, [setDato, urlbase]);
+
+    console.log(dato);
+
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        setDato((prevDato) => ({
+            ...prevDato,
+            [id]: value,
+        }));
+    };
 
     //const {urlSelect} = useContext(Context);
     //const url = process.env.REACT_APP_API_URL;
 
-
-    const handleNombreChange = (event) => {
-        setNombre(event.target.value);
-    };
-
-    const handleCategoriaChange = (event) => {
-        setCategoria(event.target.value);
-    };
-
-    const handleMetalChange = (event) => {
-        setMetal(event.target.value);
-    };
-    const handlePrecioChange = (event) => {
-        setPrecio(event.target.value);
-    };
-    const handleStockChange = (event) => {
-        setStock(event.target.value);
-    };
-    const handleImgChange = (event) => {
-        setImg(event.target.value);
-    };
-
-    const handleSubmit = async (event) => {
+    async function handleSubmit(event) {
         event.preventDefault();
         try {
-            const urlbase = process.env.REACT_APP_API_URL || "http://127.0.0.1:3001/joyas";
             const response = await fetch(`${urlbase}`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ nombre, categoria, metal, precio, stock, img }),
+                body: JSON.stringify(dato),
             });
 
-            const data = await response.json();
-            console.log("Soy data en formulario: ", data);
+            if (response.ok) {
+                console.log('Joya actualizada exitosamente');
+                //console.log("Este es el objeto luego de enviar",dato);
 
-            setNombre('');
-            setCategoria('');
-            setMetal('');
-            setPrecio('');
-            setStock('');
-            setImg('');
+                // Redireccionar a la página principal
+                navigate('/'); // Reemplaza '/' con la ruta de tu página principal
 
-            console.log(nombre, " ", categoria, " ", img, " ", precio);
-
-            const nuevoDatoId = data.id;
-            console.log("ID del nuevo dato:", nuevoDatoId);
-
-            const newData = { id: nuevoDatoId, nombre, categoria, metal, precio, stock, img };
-            setDatos(prevDatos => {
-                const updatedData = [...prevDatos, newData];
-                updatedData.sort((a, b) => b.id - a.id); // Ordenar datos por ID en forma descendente
-                return updatedData;
-            });
-
-            //window.location.reload();
-
+            } else {
+                console.error('Error al actualizar la joya');
+            }
         } catch (error) {
-            console.error(error);
+            console.error('Error al enviar la actualización:', error);
         }
-    };
+    }
 
     return (
         <Card border="primary" style={{ color: '#FFF', background: '#214589' }}>
-            <Card.Header>Agregar Inventario</Card.Header>
+            <Card.Header>Editar Joya</Card.Header>
             <Card.Body>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -90,9 +83,10 @@ function Formulario() {
                             type="text"
                             className="form-control"
                             id="nombre"
-                            value={nombre}
-                            onChange={handleNombreChange}
+                            value={dato.nombre}
+                            onChange={handleChange}
                             required
+
                         />
                     </div>
                     <div className="form-group">
@@ -101,8 +95,8 @@ function Formulario() {
                             type="text"
                             className="form-control"
                             id="categoria"
-                            value={categoria}
-                            onChange={handleCategoriaChange}
+                            value={dato.categoria}
+                            onChange={handleChange}
                             required
                         />
                     </div>
@@ -112,8 +106,8 @@ function Formulario() {
                             type="text"
                             className="form-control"
                             id="metal"
-                            value={metal}
-                            onChange={handleMetalChange}
+                            value={dato.metal}
+                            onChange={handleChange}
                             required
                         />
                     </div>
@@ -123,8 +117,8 @@ function Formulario() {
                             type="text"
                             className="form-control"
                             id="precio"
-                            value={precio}
-                            onChange={handlePrecioChange}
+                            value={dato.precio}
+                            onChange={handleChange}
                             required
                         />
                     </div>
@@ -134,8 +128,8 @@ function Formulario() {
                             type="number"
                             className="form-control"
                             id="stock"
-                            value={stock}
-                            onChange={handleStockChange}
+                            value={dato.stock}
+                            onChange={handleChange}
                             required
                         />
                     </div>
@@ -144,18 +138,22 @@ function Formulario() {
                         <textarea
                             className="form-control"
                             id="img"
-                            value={img}
-                            onChange={handleImgChange}
+                            value={dato.img}
+                            onChange={handleChange}
                             required
                         />
                     </div>
+                    <div className='d-flex justify-content-center m-3'>
+                        <img src={dato.img} alt="Descripción de la imagen" style={{ width: '10%', height: 'auto' }} />
+                    </div>
                     <button type="submit" className="btn btn-primary">
-                        Crear Post
+                        Editar
                     </button>
                 </form>
+
             </Card.Body>
         </Card>
     );
 }
 
-export default Formulario;
+export default Edit;
