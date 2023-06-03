@@ -31,7 +31,7 @@ const Caja = () => {
         }
         fetchPosts();
     }, [urlSelect, setDatos]);
-    console.log("Soy datos despues del useeffect", datos);
+    console.log("Soy datos después del useeffect", datos);
 
     const handleEdit = (id) => {
         navigate(`/edit/${id}`);

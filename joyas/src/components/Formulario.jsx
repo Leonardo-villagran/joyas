@@ -11,7 +11,7 @@ function Formulario() {
     const [stock, setStock] = useState(0);
     const [img, setImg] = useState('');
 
-    const { datos, setDatos } = useContext(Context);
+    const { setDatos } = useContext(Context);
 
     //const {urlSelect} = useContext(Context);
     //const url = process.env.REACT_APP_API_URL;

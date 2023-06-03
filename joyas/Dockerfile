@@ -14,7 +14,8 @@ RUN npm install
 COPY . .
 
 # Establecer las variables de entorno necesarias
-ENV REACT_APP_API_URL=http://localhost:3001
+ENV REACT_APP_API_URL=http://localhost:3001/joyas
+ENV REACT_APP_API_FILTROS=http://127.0.0.1:3001/joyas/filtros
 
 # Construir la aplicación
 RUN npm run build
